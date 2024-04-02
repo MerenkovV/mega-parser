@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./style/AppStyle.css";
 import { HousesType, useStore } from "./store/store";
 import Card from "./components/Card";
-import { getHouses } from "./api/housesApi";
+import { getHouses, setHook } from "./api/housesApi";
 import { observer } from "mobx-react-lite";
 
 const getSetData = async (
@@ -14,6 +14,8 @@ const getSetData = async (
   console.log(data);
   setHouses(data);
   setIsFetching(false);
+  const hookMessage = await setHook();
+  if (hookMessage) getSetData(setHouses, setIsFetching);
 };
 
 const App = observer(() => {

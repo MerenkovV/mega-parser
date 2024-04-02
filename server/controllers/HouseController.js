@@ -59,19 +59,25 @@ class HouseController {
               include: [{ model: Images, attributes: ["link", "id"] }],
               order: [["id", "DESC"]],
             });
-      return res.json([...housesDB.rows, ...filterHousesParseDB.reverse()]);
+      return res.json([...filterHousesParseDB.reverse(), ...housesDB.rows]);
     } else {
       return res.json(filterHousesParseDB.slice(0, limit).reverse());
     }
   }
   async setHook(req, res, next) {
-    const { id, favorite } = req.body;
-    if (!id) return next(ApiError.badRequest("Не введён id квартиры"));
-    const isSet = await House.findOne({ where: { id } });
-    if (!isSet)
-      return next(ApiError.badRequest("Такой квартиры не существует"));
-    const type = await House.update({ favorite }, { where: { id } });
-    return res.json(type);
+    const promise = new Promise((resolve, reject) => {
+      let interval = setInterval(async () => {
+        console.log("check");
+        const housesParse = await Utils.getRu09Data();
+        if (housesParse && housesParse.length > 0) {
+          clearInterval(interval);
+          console.log("new house found!");
+          resolve("New!");
+        }
+      }, 600000);
+    });
+    const message = await promise;
+    return res.json(message);
   }
 }
 

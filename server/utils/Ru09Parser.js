@@ -5,11 +5,13 @@ const axios = require("axios");
 class Utils {
   async getRu09Data() {
     let Arr;
+    const browser = await puppeteer.launch({ headless: false });
+    const page = await browser.newPage();
+
     try {
-      const browser = await puppeteer.launch({ headless: false });
-      const page = await browser.newPage();
       await page.goto(
-        "https://www.tomsk.ru09.ru/realty/?type=2&otype=1&price[min]=15&price[max]=22&rent_type[1]=on&scom[min]=20&floor[notfirst]=on&perpage=50"
+        "https://www.tomsk.ru09.ru/realty/?type=2&otype=1&price[min]=15&price[max]=22&rent_type[1]=on&scom[min]=20&floor[notfirst]=on&perpage=50",
+        { waitUntil: "load", timeout: 0 }
       );
       Arr = await page.evaluate(() => {
         let lastHousesArray = [];
@@ -61,6 +63,7 @@ class Utils {
       await browser.close();
     } catch (error) {
       console.log(error);
+      await browser.close();
       return null;
     }
 
@@ -87,10 +90,10 @@ class Utils {
                 answer[0] > process.env.NE_X &&
                 answer[0] < process.env.SW_X
               ) {
-                return { ...obj, right: true };
+                return { ...obj, right: true, X: answer[0], Y: answer[1] };
               }
             }
-            return { ...obj, right: false };
+            return { ...obj, right: false, X: answer[0], Y: answer[1] };
           })
           .catch((error) => {
             console.log("ERROR : " + error);

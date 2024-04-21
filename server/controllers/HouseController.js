@@ -3,6 +3,29 @@ const ApiError = require("../errors/ApiError");
 const Utils = require("../utils/Ru09Parser");
 const { Op } = require("sequelize");
 
+const LookObject = new (class LookController {
+  constructor() {
+    this.isLookSet = false;
+    this.timerSet = 600000;
+  }
+
+  async startLooking(resolveCallback) {
+    if (!this.isLookSet) {
+      this.isLookSet = true;
+      let interval = setInterval(async () => {
+        console.log("check | " + Date());
+        const housesParse = await Utils.getRu09Data();
+        if (housesParse && housesParse.length > 0) {
+          clearInterval(interval);
+          this.isLookSet = false;
+          console.log("new house found!");
+          resolveCallback();
+        }
+      }, this.timerSet);
+    }
+  }
+})();
+
 class HouseController {
   async setFavorite(req, res, next) {
     const { id, favorite } = req.body;
@@ -66,15 +89,10 @@ class HouseController {
   }
   async setHook(req, res, next) {
     const promise = new Promise((resolve, reject) => {
-      let interval = setInterval(async () => {
-        console.log("check");
-        const housesParse = await Utils.getRu09Data();
-        if (housesParse && housesParse.length > 0) {
-          clearInterval(interval);
-          console.log("new house found!");
-          resolve("New!");
-        }
-      }, 600000);
+      const resolveCallback = () => {
+        resolve("New!");
+      };
+      LookObject.startLooking(resolveCallback);
     });
     const message = await promise;
     return res.json(message);

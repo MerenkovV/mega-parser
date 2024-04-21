@@ -44,3 +44,12 @@
 .card__favorite > svg:hover > path {
   fill: #fffd77;
 }
+
+.leaflet-container {
+  height: 120px;
+  width: 200px;
+}
+
+.leaflet-control-attribution {
+  display: none;
+}

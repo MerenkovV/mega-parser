@@ -9,6 +9,8 @@ const House = sequelize.define("house", {
   price: { type: STRING, allowNull: false },
   right: { type: BOOLEAN, allowNull: false },
   favorite: { type: BOOLEAN, allowNull: false, defaultValue: "false" },
+  X: { type: STRING, allowNull: false },
+  Y: { type: STRING, allowNull: false },
 });
 
 const Images = sequelize.define("images", {

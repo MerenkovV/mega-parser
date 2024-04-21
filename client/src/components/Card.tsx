@@ -3,6 +3,7 @@ import "../style/CardStyle.css";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../store/store";
 import { setFavorite } from "../api/housesApi";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 interface CardProps {
   description: string;
@@ -12,10 +13,12 @@ interface CardProps {
   images: Array<{ link: string; id: number } | null>;
   favorite: boolean;
   id: number;
+  X: string;
+  Y: string;
 }
 
 const Card: (props: CardProps) => JSX.Element = observer(
-  ({ id, description, number, price, address, images, favorite }) => {
+  ({ id, description, number, price, address, images, favorite, X, Y }) => {
     const { changeFavorite } = useStore();
     return (
       <div className="card">
@@ -42,6 +45,21 @@ const Card: (props: CardProps) => JSX.Element = observer(
               className="card__image"
             />
           ))}
+          <MapContainer
+            center={[56.466764281952685, 84.96495717830331]}
+            zoom={11}
+            scrollWheelZoom={false}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[Number(Y), Number(X)]}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+          </MapContainer>
         </div>
         <a
           className="card__link"

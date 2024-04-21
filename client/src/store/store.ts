@@ -10,6 +10,8 @@ export type HousesType = {
   right: boolean;
   favorite: boolean;
   images: Array<{ link: string; id: number } | null>;
+  X: string;
+  Y: string;
   createdAt: any;
   updatedAt: any;
 };

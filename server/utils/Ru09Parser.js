@@ -10,7 +10,7 @@ class Utils {
 
     try {
       await page.goto(
-        "https://www.tomsk.ru09.ru/realty/?type=2&otype=1&price[min]=15&price[max]=22&rent_type[1]=on&scom[min]=20&floor[notfirst]=on&perpage=50",
+        "https://www.tomsk.ru09.ru/realty/?type=2&otype=1&price[min]=15&price[max]=35&rent_type[1]=on&scom[min]=20&floor[notfirst]=on&perpage=10",
         { waitUntil: "load", timeout: 0 }
       );
       Arr = await page.evaluate(() => {
@@ -76,15 +76,13 @@ class Utils {
       resultArr = await this.asyncForEach(uncheckedArr, async (obj, i) => {
         return await axios
           .request(
-            `https://geocode-maps.yandex.ru/1.x/?apikey=57068974-3853-403b-bd2f-3ace3cdec4f8&geocode=${obj.address}&format=json`
+            `https://nominatim.openstreetmap.org/search.php?q=${obj.address}&format=jsonv2`
           )
           .then((response) => {
-            const answer = JSON.stringify(
-              response.data.response.GeoObjectCollection.featureMember[0]
-                .GeoObject.Point.pos
-            )
-              .slice(1, -1)
-              .split(" ");
+            const data = response.data[0];
+
+            const answer = [data.lon, data.lat];
+
             if (answer[1] < process.env.NE_Y && answer[1] > process.env.SW_Y) {
               if (
                 answer[0] > process.env.NE_X &&

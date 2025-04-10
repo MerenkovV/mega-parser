@@ -74,14 +74,32 @@ class Utils {
     let resultArr = [];
     if (uncheckedArr.length !== 0) {
       resultArr = await this.asyncForEach(uncheckedArr, async (obj, i) => {
+        let formattedAddress = obj.address.split("+");
+
+        formattedAddress.forEach((part, index) => {
+          if (part === "проспект") {
+            const prevPart = formattedAddress[index - 1];
+
+            formattedAddress[index - 1] = part;
+            formattedAddress[index] = prevPart;
+          }
+        });
+
+        formattedAddress = formattedAddress.join("+");
+
         return await axios
           .request(
-            `https://nominatim.openstreetmap.org/search.php?q=${obj.address}&format=jsonv2`
+            `https://nominatim.openstreetmap.org/search.php?q=${formattedAddress}&format=jsonv2`
           )
           .then((response) => {
             const data = response.data[0];
 
-            const answer = [data.lon, data.lat];
+            if (!data?.lon || !data?.lat) {
+              console.log("ERRORABLE: ", formattedAddress);
+              return;
+            }
+
+            const answer = [data?.lon, data?.lat];
 
             if (answer[1] < process.env.NE_Y && answer[1] > process.env.SW_Y) {
               if (
@@ -94,7 +112,7 @@ class Utils {
             return { ...obj, right: false, X: answer[0], Y: answer[1] };
           })
           .catch((error) => {
-            console.log("ERROR : " + error);
+            console.log("ERROR : ", error);
           });
       });
     }
